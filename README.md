@@ -29,6 +29,11 @@ HTTP System One backend for [`decision-protocol`](https://github.com/egao1980/de
 
 Tests inject `request-fn` — no live sidecar required.
 
+```bash
+sbcl --load examples/systemone.lisp          # fixture
+DECISION_LIVE=1 sbcl --load examples/systemone.lisp   # local Kev
+```
+
 ```lisp
 (asdf:test-system "decision-backend-http")
 ```
