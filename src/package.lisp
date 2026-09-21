@@ -9,7 +9,9 @@
            #:http-decision-backend
            #:http-decision-backend-p
            #:make-http-decision-backend
+           #:make-jev-decision-backend
            #:use-http-decision-backend
+           #:+default-jev-base-url+
            #:http-decision-base-url
            #:http-decision-api-key
            #:http-decision-default-model

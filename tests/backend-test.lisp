@@ -165,6 +165,31 @@
     (ok (decision-protocol:decision-result-p result))
     (ok (search "/v1/systemone/separate" (second (car box))))))
 
+(deftest jev-hosted-pins-model-and-base
+  (let* ((box (list nil))
+         (store (secrets-protocol:make-in-memory-secret-store
+                 :secrets '(("typesafe" "api-key" "tok-secret"))))
+         (ref (secrets-protocol:make-secret-ref :name "typesafe" :key "api-key"))
+         (backend (decision-backend-http:make-jev-decision-backend
+                   :request-fn (%capture-fn box
+                                            (stack-json:encode
+                                             (%ht "model" "jev-latest"
+                                                  "answers" (%ht "risk" (%ht "type" "choice"
+                                                                             "choice" "allow"
+                                                                             "probabilities" (%ht "allow" 0.8
+                                                                                                  "deny" 0.2)))
+                                                  "usage" (%ht "input_tokens" 1
+                                                               "output_tokens" 1))))
+                   :secret-ref ref
+                   :secret-store store))
+         (result (decision-protocol:decide backend (%req :model :jev-latest))))
+    (ok (equal "https://api.typesafe.ai" (decision-backend-http:http-decision-base-url backend)))
+    (ok (equal "jev-latest" (decision-protocol:decision-result-model result)))
+    (ok (search "/v1/systemone" (second (car box))))
+    (ok (equal "Bearer tok-secret"
+               (cdr (assoc "authorization" (third (car box)) :test #'equal))))
+    (ng (search "tok-secret" (fourth (car box))))))
+
 (deftest concentration-is-not-sent-or-required
   (let* ((req (%req))
          (payload (stack-json:decode (%ok-body)))

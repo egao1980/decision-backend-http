@@ -16,6 +16,11 @@ HTTP System One backend for [`decision-protocol`](https://github.com/egao1980/de
  :base-url "http://127.0.0.1:8009"
  :default-model "kev-4b")
 
+;; Hosted Jev — same client, pinned model, bearer from a secret-ref.
+(decision-backend-http:make-jev-decision-backend
+ :secret-ref (secrets-protocol:make-secret-ref :name "typesafe" :key "api-key")
+ :secret-store store)
+
 (decision-protocol:decide
  decision-protocol:*decision-backend*
  (decision-protocol:make-decision-request

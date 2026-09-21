@@ -7,6 +7,7 @@
 
 (defparameter +default-systemone-base-url+ "http://127.0.0.1:8009")
 (defparameter +default-systemone-model+ "kev-4b")
+(defparameter +default-jev-base-url+ "https://api.typesafe.ai")
 
 (defclass http-decision-backend (dec:decision-backend)
   ((base-url :initarg :base-url :accessor http-decision-base-url
@@ -54,6 +55,24 @@
 
 (defun use-http-decision-backend (&rest args &key &allow-other-keys)
   (setf dec:*decision-backend* (apply #'make-http-decision-backend args)))
+
+(defun make-jev-decision-backend (&key base-url api-key (default-model "jev-latest")
+                                    secret-ref secret-store request-fn
+                                    (timeout 60)
+                                    (capabilities '(:batch :permute :separate)))
+  "Same HTTP client, hosted Jev defaults. Pin DEFAULT-MODEL; resolve-model
+   journals the concrete name. Bearer from SECRET-REF, never inline in the body."
+  (make-http-decision-backend
+   :base-url (or base-url
+                 (%env "JEV_BASE_URL")
+                 +default-jev-base-url+)
+   :api-key api-key
+   :default-model default-model
+   :secret-ref secret-ref
+   :secret-store secret-store
+   :request-fn request-fn
+   :timeout timeout
+   :capabilities capabilities))
 
 (defun %model-key (model)
   (cond
