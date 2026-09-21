@@ -360,6 +360,7 @@
       (values status body (%decode-json body)))))
 
 (defun %raise-http (status body obj)
+  (declare (ignore body))
   (let ((msg (or (%jget obj "error")
                  (%jget (%jget obj "error") "message")
                  (format nil "HTTP ~a" status))))
